@@ -9,7 +9,6 @@ public class BookDTO
 
 public class GenreDTO
 {
-    //public int PK { get; set; }
     public string Name { get; set; }
 }
 
