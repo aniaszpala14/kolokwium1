@@ -63,7 +63,6 @@ public class BookRepository : IBookRepository
         public async Task AddBookWithGenres(AddBookWithGenresDTO bookWGenres)
     {
          var insert = @"INSERT INTO Books (Title) VALUES (@Title); SELECT SCOPE_IDENTITY();";
-        // var insert = "INSERT INTO Books (PK, Title) VALUES ((SELECT ISNULL(MAX(PK), 0) + 1 FROM Books), @Title)"; 
 
         await using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
         await using SqlCommand command = new SqlCommand();
@@ -71,7 +70,6 @@ public class BookRepository : IBookRepository
         command.CommandText = insert;
         command.Parameters.AddWithValue("@Title", bookWGenres.Title);
         await connection.OpenAsync();
-
         var transaction = await connection.BeginTransactionAsync();
         command.Transaction = transaction as SqlTransaction;
         try
@@ -79,21 +77,12 @@ public class BookRepository : IBookRepository
             var bookId = await command.ExecuteScalarAsync();
             command.CommandText = "SELECT ISNULL(MAX(PK), 0) FROM BOOKS";
             var book2Id = await command.ExecuteScalarAsync();
-
             foreach (var pk in bookWGenres.Genres)
             {
                 command.Parameters.Clear();
                 command.CommandText = "SELECT PK FROM Genres WHERE PK=@PK";
                 command.Parameters.AddWithValue("@PK", pk);
                 var genreId = await command.ExecuteScalarAsync();
-               // var genre2 = genreId;
-               
-                // if (!await CheckGenre(Convert.ToInt32(genre2)))
-                // {
-                //     await transaction.RollbackAsync("There is no Genre under this number !");
-                //     return;
-                // }
-                //
                 command.CommandText = "INSERT INTO books_genres (FK_book, FK_genre) VALUES (@BooksPK, @GenresPK);";
                 command.Parameters.Clear();
                 command.Parameters.AddWithValue("@BooksPK", book2Id);
@@ -108,8 +97,6 @@ public class BookRepository : IBookRepository
             await transaction.RollbackAsync();
             throw;
         }
-
-        
     }
     
     public async Task<bool> CheckBook(int id)
