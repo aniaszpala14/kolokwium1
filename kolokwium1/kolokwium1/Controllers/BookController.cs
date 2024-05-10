@@ -29,7 +29,6 @@ public class BookController : ControllerBase
     public async Task<IActionResult> AddBookWithAuthors([FromBody]AddBookWithGenresDTO bookWGenres)
     {
         
-        
         await _bookRepository.AddBookWithGenres(bookWGenres);
         return Created(Request.Path.Value ?? "api/books", bookWGenres);
     }

@@ -7,37 +7,29 @@ namespace kolokwium1.Repositories;
 public class BookRepository : IBookRepository
 {
     public readonly IConfiguration _configuration;
-
     public BookRepository(IConfiguration configuration)
     {
         _configuration = configuration;
     }
     public async Task<BookDTO> GetBookGenres(int id)
     {
-        var query =  @"SELECT Books.PK AS BOOKPK ,Title,Genres.PK,Name FROM BOOKS 
+        var query =  @"SELECT Books.PK AS BOOKpk ,Title,Genres.PK,Name FROM BOOKS 
                 JOIN BOOKS_GENRES ON Books_Genres.FK_book=Books.PK
                 JOIN GENRES ON Genres.PK=Books_Genres.FK_genre
                 WHERE Books.PK=@Id";
         
         await using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
         await using SqlCommand command = new SqlCommand();
-        
-    
         command.Connection = connection;
         command.CommandText = query;
         command.Parameters.AddWithValue("@ID", id);
     
         await connection.OpenAsync();
-    
         var reader = await command.ExecuteReaderAsync();
-        
-        var BookPKOrdinal = reader.GetOrdinal("BOOKPK");
+        var BookPKOrdinal = reader.GetOrdinal("BOOKpk");
         var BookTitleOrdinal = reader.GetOrdinal("Title");
-    
         var GenresOrdinal = reader.GetOrdinal("Name");
-        
         BookDTO bookDto = null;
-        
         while (await reader.ReadAsync())
         {
             if (bookDto is not null)
@@ -85,32 +77,28 @@ public class BookRepository : IBookRepository
         try
         {
             var bookId = await command.ExecuteScalarAsync();
-
             command.CommandText = "SELECT ISNULL(MAX(PK), 0) FROM BOOKS";
             var book2Id = await command.ExecuteScalarAsync();
 
-            foreach (var genre in bookWGenres.Genres)
+            foreach (var pk in bookWGenres.Genres)
             {
                 command.Parameters.Clear();
-                // command.CommandText="INSERT INTO Genres (Name) VALUES(@Name);SELECT SCOPE_IDENTITY();";
-                // command.CommandText="INSERT INTO Genres (PK,Name) VALUES((SELECT ISNULL(MAX(PK), 0) + 1 FROM Genres),@Name);";
-
                 command.CommandText = "SELECT PK FROM Genres WHERE PK=@PK";
-                command.Parameters.AddWithValue("@PK", genre.PK);
-                //await command.ExecuteNonQueryAsync();
-                
-                // command.CommandText = "SELECT ISNULL(MAX(PK), 0) FROM Genres";
+                command.Parameters.AddWithValue("@PK", pk);
                 var genreId = await command.ExecuteScalarAsync();
-                
-              //  if(!await CheckGenre(genreId))
-
+               // var genre2 = genreId;
+               
+                // if (!await CheckGenre(Convert.ToInt32(genre2)))
+                // {
+                //     await transaction.RollbackAsync("There is no Genre under this number !");
+                //     return;
+                // }
+                //
                 command.CommandText = "INSERT INTO books_genres (FK_book, FK_genre) VALUES (@BooksPK, @GenresPK);";
-                ;
                 command.Parameters.Clear();
                 command.Parameters.AddWithValue("@BooksPK", book2Id);
                 command.Parameters.AddWithValue("@GenresPK", genreId);
                 await command.ExecuteNonQueryAsync();
-
             }
 
             await transaction.CommitAsync();

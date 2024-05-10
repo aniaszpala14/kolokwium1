@@ -15,7 +15,8 @@ public class GenreDTO
 public class AddBookWithGenresDTO
 {
     public string Title { get; set; }
-    public IEnumerable<GenreToAddDTO> Genres { get; set; }=new List<GenreToAddDTO>();
+  //  public IEnumerable<GenreToAddDTO> Genres { get; set; }=new List<GenreToAddDTO>();
+    public IEnumerable<int> Genres { get; set; }=new List<int>();
 }
 
 public class GenreToAddDTO
