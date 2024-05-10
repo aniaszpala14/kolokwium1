@@ -34,10 +34,10 @@ public class BookRepository : IBookRepository
         {
             if (bookDto is not null)
             {
-                bookDto.Genres.Add(new GenreDTO()
-                {
-                    Name = reader.GetString(GenresOrdinal),
-                });
+                bookDto.Genres.Add(new string(reader.GetString(GenresOrdinal)));
+                // {
+                //     Name = reader.GetString(GenresOrdinal),
+                // });
             }
             else
             {
@@ -45,12 +45,9 @@ public class BookRepository : IBookRepository
                 {
                     PK = reader.GetInt32(BookPKOrdinal),
                     Title = reader.GetString(BookTitleOrdinal),
-                    Genres = new List<GenreDTO>()
+                    Genres = new List<string>()
                     {
-                        new GenreDTO()
-                        {
-                            Name = reader.GetString(GenresOrdinal)
-                        }
+                        new string(reader.GetString(GenresOrdinal))
                     }
                 };
         
