@@ -16,7 +16,7 @@ public class BookController : ControllerBase
         _bookRepository = bookRepository;
     }
     
-    [HttpGet("{id}/genres")]
+    [HttpGet("{id:int}/genres")]
     public async Task<IActionResult> GetBookGenres(int id)
     {
         if (!await _bookRepository.CheckBook(id))
@@ -28,6 +28,8 @@ public class BookController : ControllerBase
     [HttpPost("")]
     public async Task<IActionResult> AddBookWithAuthors([FromBody]AddBookWithGenresDTO bookWGenres)
     {
+        
+        
         await _bookRepository.AddBookWithGenres(bookWGenres);
         return Created(Request.Path.Value ?? "api/books", bookWGenres);
     }

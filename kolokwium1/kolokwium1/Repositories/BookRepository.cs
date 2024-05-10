@@ -85,31 +85,34 @@ public class BookRepository : IBookRepository
         try
         {
             var bookId = await command.ExecuteScalarAsync();
-            
+
             command.CommandText = "SELECT ISNULL(MAX(PK), 0) FROM BOOKS";
             var book2Id = await command.ExecuteScalarAsync();
-            
+
             foreach (var genre in bookWGenres.Genres)
             {
                 command.Parameters.Clear();
-              // command.CommandText="INSERT INTO Genres (Name) VALUES(@Name);SELECT SCOPE_IDENTITY();";
+                // command.CommandText="INSERT INTO Genres (Name) VALUES(@Name);SELECT SCOPE_IDENTITY();";
                 // command.CommandText="INSERT INTO Genres (PK,Name) VALUES((SELECT ISNULL(MAX(PK), 0) + 1 FROM Genres),@Name);";
 
-                 command.CommandText="SELECT PK FROM Genres WHERE PK=@PK";
-                 command.Parameters.AddWithValue("@PK",genre.PK);
-                 //await command.ExecuteNonQueryAsync();
-                 
-                // command.CommandText = "SELECT ISNULL(MAX(PK), 0) FROM Genres";
-                 var genreId = await command.ExecuteScalarAsync();
-
-             
-                 command.CommandText =  "INSERT INTO books_genres (FK_book, FK_genre) VALUES (@BooksPK, @GenresPK);";;
-                 command.Parameters.Clear();
-                 command.Parameters.AddWithValue("@BooksPK", book2Id);
-                 command.Parameters.AddWithValue("@GenresPK", genreId);
-                 await command.ExecuteNonQueryAsync();
+                command.CommandText = "SELECT PK FROM Genres WHERE PK=@PK";
+                command.Parameters.AddWithValue("@PK", genre.PK);
+                //await command.ExecuteNonQueryAsync();
                 
+                // command.CommandText = "SELECT ISNULL(MAX(PK), 0) FROM Genres";
+                var genreId = await command.ExecuteScalarAsync();
+                
+              //  if(!await CheckGenre(genreId))
+
+                command.CommandText = "INSERT INTO books_genres (FK_book, FK_genre) VALUES (@BooksPK, @GenresPK);";
+                ;
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("@BooksPK", book2Id);
+                command.Parameters.AddWithValue("@GenresPK", genreId);
+                await command.ExecuteNonQueryAsync();
+
             }
+
             await transaction.CommitAsync();
         }
         catch (Exception)

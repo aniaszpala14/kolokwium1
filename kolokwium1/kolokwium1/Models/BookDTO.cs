@@ -3,7 +3,7 @@
 public class BookDTO
 {
     public int PK { get; set; }
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
     public List<GenreDTO> Genres { get; set; }
 }
 
